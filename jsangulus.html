@@ -1,0 +1,249 @@
+<html>
+<head>
+<script
+src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+<script
+src="https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY&key=key=AIzaSyByhGWZ6Vsh7fqahbr08FPSTXKoGOKBM2o&sensor=false"></script>
+<script 
+src="https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyByhGWZ6Vsh7fqahbr08FPSTXKoGOKBM2o"></script>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzE9xAESye6Kde-3hT-6B90nfwUkcS8Yw&sensor=false"></script>
+<script type="text/javascript" src="https://sdk-cdn.mypurecloud.com/javascript/12.0.0/purecloud-platform-client-v2.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+</head>
+
+<script>
+var geocoder;
+var map;
+var address_1;
+var address_2;
+var x1;
+var x2;
+var y1;
+var y2;
+var midx;
+var midy;
+/*$(function() {
+
+  function calculateDistance(origin, destination) {
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+    {
+      origins: [origin],
+      destinations: [destination],
+      travelMode: google.maps.TravelMode.DRIVING,
+      unitSystem: google.maps.UnitSystem.IMPERIAL,
+      avoidHighways: false,
+      avoidTolls: false
+    }, callback);
+  }
+
+  function callback(response, status) {
+    if (status != google.maps.DistanceMatrixStatus.OK) {
+      $('#result').html(err);
+    } else {
+      var origin = response.originAddresses[0];
+      var destination = response.destinationAddresses[0];
+      if (response.rows[0].elements[0].status === "ZERO_RESULTS") {
+        $('#result').html("Better get on a plane. There are no roads between " 
+                          + origin + " and " + destination);
+      } else {
+        var distance = response.rows[0].elements[0].distance;
+        var distance_value = distance.value;
+        var distance_text = distance.text;
+        var miles = distance_text.substring(0, distance_text.length - 3);
+        $('#result').html("It is " + miles + " miles from " + origin + " to " + destination);
+      }
+    }
+  }
+    
+  $('#distance_form').submit(function(e){
+      event.preventDefault();
+      var origin = $('#origin').val();
+      var destination = $('#destination').val();
+      var distance_text = calculateDistance(origin, destination);
+  });
+ 
+});
+
+*/
+
+/*function codeAddress() {
+	geocoder = new google.maps.Geocoder();
+	//var address = document.getElementById('place_1').value;
+	//console.log(address);
+	if(document.getElementById('place_1').value==""){return;}
+	var address = document.getElementById('place_1').value;
+	var address_1 = {
+		'address': "village 1",
+	}
+	console.log(address_1);
+	geocoder.geocode( address_1, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			console.log(results);
+			return results;
+			map.setCenter(results[0].geometry.location);
+			if(marker)
+				marker.setMap(null);
+			marker = new google.maps.Marker({
+				map: map,
+				position: results[0].geometry.location,
+				draggable: true
+			});
+			google.maps.event.addListener(marker, "dragend", function() {
+				document.getElementById('lat').value = marker.getPosition().lat();
+				document.getElementById('lng').value = marker.getPosition().lng();
+			});
+			document.getElementById('lat').value = marker.getPosition().lat();
+			document.getElementById('lng').value = marker.getPosition().lng();
+		} else {
+			alert('Geocode was not successful for the following reason: ' + status);
+		}
+	});
+}*/
+
+function getCodeX(myAddress){
+	geocoder.geocode( { 'address': myAddress}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+      	console.log(results[0].geometry.location.lat());
+        return results[0].geometry.location.lat();
+      } else {
+        alert("Geocode was not successful for the following reason: " + status);
+      }
+    });
+}
+
+function getCodeY(myAddress){
+	geocoder.geocode( { 'address': myAddress}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+      	//console.log(results[0].geometry.location.lat());
+        return results[0].geometry.location.lng();
+      } else {
+        alert("Geocode was not successful for the following reason: " + status);
+      }
+    });
+}
+
+function midPoint(){
+	var y;
+	address_1 = document.getElementById("place_1").value;
+    address_2 = document.getElementById("place_2").value;
+    geocoder.geocode( { 'address': address_1}, function(results, status) {
+    	if (status == google.maps.GeocoderStatus.OK) {
+    		//get lat-vaLUE of place1
+    		//var x1;
+    		x1 = (results[0].geometry.location.lat());
+    		geocoder.geocode( { 'address': address_2}, function(results, status) {
+    			if (status == google.maps.GeocoderStatus.OK) {
+    				//get lat-vaLUE of place2
+    				x2 = (results[0].geometry.location.lat());
+    				geocoder.geocode( { 'address': address_1}, function(results, status) {
+    					if (status == google.maps.GeocoderStatus.OK) {
+    						//get LNG-vaLue of place1
+    						y1 = (results[0].geometry.location.lng());
+    						geocoder.geocode( { 'address': address_2}, function(results, status) {
+    							if (status == google.maps.GeocoderStatus.OK) {
+    								//get LNG-vaLue of place2
+    								y2 = (results[0].geometry.location.lng());
+    								midx = (x1 + x2)/2;
+    								midy = (y1 + y2)/2;
+    								var newPos = new google.maps.LatLng(midx,midy);
+    								map.setOptions({
+    									zoom: 18,
+    									center: newPos
+    								});
+    								marker = new google.maps.Marker({
+    									map: map,
+    									position: newPos,
+    									draggable: true
+    								});
+    							} else {
+    								alert("Geocode was not successful for the following reason: " + status);
+    							}
+    						});
+    					} else {
+    						alert("Geocode was not successful for the following reason: " + status);
+    					}
+    				});
+    			} else {
+    				alert("Geocode was not successful for the following reason: " + status);
+    			}
+    		});
+    	} else {
+    		alert("Geocode was not successful for the following reason: " + status);
+    	}
+    });
+    
+
+    //console.log(getCodeX(address_1));
+}
+
+//console.log(x1);
+
+function initialize() {
+    geocoder = new google.maps.Geocoder();
+    var latlng = new google.maps.LatLng(-34.397, 150.644);
+    var mapOptions = {
+      zoom: 8,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+    map = new google.maps.Map(document.getElementById("googleMap"), mapOptions);
+  }
+
+//google.maps.event.addDomListener(window, 'load', initialize);
+
+
+/*function codeAddress() {
+	geocoder = new google.maps.Geocoder();
+	if(document.getElementById('place_1').value=="")return;
+	var address = document.getElementById('place_1').value;
+	geocoder.geocode( {'place_1': address}, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			console.log(results);
+			return results[0].geometry.location;
+			map.setCenter(results[0].geometry.location);
+			if(marker)
+				marker.setMap(null);
+			marker = new google.maps.Marker({
+				map: map,
+				position: results[0].geometry.location,
+				draggable: true
+			});
+			google.maps.event.addListener(marker, "dragend", function() {
+				document.getElementById('lat').value = marker.getPosition().lat();
+				document.getElementById('lng').value = marker.getPosition().lng();
+			});
+			document.getElementById('lat').value = marker.getPosition().lat();
+			document.getElementById('lng').value = marker.getPosition().lng();
+		} else {
+			alert('Geocode was not successful for the following reason: ' + status);
+		}
+	});
+}*/
+
+
+
+
+</script>
+
+
+<body onload="initialize()">
+
+<h2>Where2Meet</h2>
+
+<form id="distance_form">
+    <label>PLACE_1: </label>
+    <input id="place_1" type="text" name="place_1"/>
+    <br/>
+    <label>PLACE_2: </label>
+    <input id="place_2" type="text" name="place_2"/>
+    <br/>
+    <input type="submit" value="Calculate"/>
+</form>
+<h1 onclick="midPoint()">GO</h1>
+<div id="result"></div>
+
+<div id="googleMap" style="width:500px;height:380px;"></div>
+</body>
+</html>
